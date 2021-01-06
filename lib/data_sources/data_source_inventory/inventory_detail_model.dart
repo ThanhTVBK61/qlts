@@ -12,6 +12,7 @@
 /// "gia_tri": "3058",
 ///"kieu_du_lieu": "text",
 /// "bat_buoc_nhap": "true"
+/// "cap_nhat": true
 /// },
 class InventoryDetailModel {
   String _errorCode;
@@ -19,6 +20,7 @@ class InventoryDetailModel {
   String _soThe;
   String _idChiTiet;
   String _maNhomThuocTinh;
+  int _idChiTietQLTS;
   List<InventoryDetail> _listInventoryDetail = [];
 
   InventoryDetailModel.fromJson(Map<String, dynamic> data) {
@@ -27,6 +29,7 @@ class InventoryDetailModel {
     if (_errorCode == '200') {
       _soThe = data['SoThe'];
       _idChiTiet = data['IdChiTiet'];
+      _idChiTietQLTS = data['IdChiTietQLTS'];
       _maNhomThuocTinh = data['MaNhomThuocTinh'];
       for (int i = 0; i < data['ObjectData'].length; i++) {
         InventoryDetail _inventoryDetail =
@@ -46,17 +49,20 @@ class InventoryDetailModel {
 
   String get maNhomThuocTinh => _maNhomThuocTinh;
 
+  int get idChiTietQLTS => _idChiTietQLTS;
+
   List get listInventoryDetail => _listInventoryDetail;
 }
 
 class InventoryDetail {
   int _stt;
-  String _maThuocTinh;
+  String _maThuocTinh ;
   String _tenThuocTinh;
   String _moTa;
   String _giaTri;
   String _kieuDuLieu;
   String _batBuocNhap;
+  bool _capNhat;
 
   InventoryDetail(inventoryDetail) {
     _stt = inventoryDetail['stt'];
@@ -66,11 +72,13 @@ class InventoryDetail {
     _giaTri = inventoryDetail['gia_tri'];
     _kieuDuLieu = inventoryDetail['kieu_du_lieu'];
     _batBuocNhap = inventoryDetail['bat_buoc_nhap'];
+    _capNhat = inventoryDetail['cap_nhat'];
   }
-
   @override
   String toString() {
-    return 'stt: $_stt, ma_thuoc_tinh: $_maThuocTinh, ten_thuoc_tinh: $_tenThuocTinh, mo_ta: $_moTa, gia_tri: $_giaTri, kieu_du_lieu: $_kieuDuLieu, bat_buoc_nhap: $_batBuocNhap';
+    String data= '{"stt": $_stt, "ma_thuoc_tinh": "$_maThuocTinh", "ten_thuoc_tinh": "$_tenThuocTinh", "mo_ta": "$_moTa", "gia_tri": "$_giaTri", "kieu_du_lieu": "$_kieuDuLieu", "bat_buoc_nhap": "$_batBuocNhap", "cap_nhat": $_capNhat}';
+    print(data);
+    return data;
   }
 
   int get stt => _stt;
@@ -86,4 +94,10 @@ class InventoryDetail {
   String get kieuDuLieu => _kieuDuLieu;
 
   String get batBuocNhap => _batBuocNhap;
+
+  bool get capNhat => _capNhat;
+
+  set giaTri(String value) {
+    _giaTri = value;
+  }
 }

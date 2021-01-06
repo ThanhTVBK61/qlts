@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:qlts/constant/constant.dart';
 import 'package:qlts/widget_home/my_home_page.dart';
 import 'package:qlts/widget_login/my_login_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,7 +26,7 @@ class SplashPageState extends State<SplashPage> {
 
     if (token == '') {
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => MyLoginPage()));
+          context, MaterialPageRoute(builder: (context) => MyLoginPage(url: URL)));
     } else {
       Navigator.pushReplacement(context,
           MaterialPageRoute(builder: (context) => MyHomePage(token: token,)));

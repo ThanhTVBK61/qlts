@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:qlts/constant/asset.dart';
 import 'package:qlts/data_sources/data_qrcode/qrcode.dart';
 
 
@@ -34,13 +36,15 @@ class PermissionState extends State<PermissionWidget> {
 
   void _listenForPermissionStatus() async {
     final status = await _permission.status;
-    setState(() {
-      if (status == PermissionStatus.permanentlyDenied ||
-          status == PermissionStatus.restricted) {
-        _permanentlyDenied = true;
-      }
-      _permissionStatus = status;
-    });
+    if(this.mounted){
+      setState(() {
+        if (status == PermissionStatus.permanentlyDenied ||
+            status == PermissionStatus.restricted) {
+          _permanentlyDenied = true;
+        }
+        _permissionStatus = status;
+      });
+    }
   }
 
   // Color getPermissionColor() {
@@ -67,7 +71,7 @@ class PermissionState extends State<PermissionWidget> {
     return Container(
       child: Center(
         child: (_permissionStatus == PermissionStatus.granted)
-            ? Container(height: 220, width: 300, child: QRCodeWidget(callback: (data,clear) {
+            ? Container(height: 220, width: 300, child: QRCodeWidget(callback: (data, clear) {
                 print("*****permission: data==>> $data");
                 callback(data,clear);
               }))
@@ -90,7 +94,7 @@ class PermissionState extends State<PermissionWidget> {
                             fontWeight: FontWeight.bold),
                       ),
                     ),
-                    Image.asset('assets/images/insert_inventory/camera.png'),
+                    SvgPicture.asset(IMAGE_CAMERA),
                   ],
                 ),
               ),

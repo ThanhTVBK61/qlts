@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:qlts/constant/constant.dart';
 import 'package:qlts/provider/home_search/search_data_provider.dart';
 import 'package:qlts/provider/home_search/search_input_data_provider.dart';
 import 'package:qlts/widget_home/search/search_input_data.dart';
@@ -18,8 +19,10 @@ class HomeSearch extends StatefulWidget {
 class HomeSearchState extends State<HomeSearch> {
   @override
   Widget build(BuildContext context) {
-    var qrcodeData = Provider.of<SearchDataModel>(context);
-    var inputData = Provider.of<SearchInputDataModel>(context);
+    ///Search Input Data
+    var searchInput = Provider.of<SearchInputDataModel>(context);
+    ///Search QrCode
+    var searchData = Provider.of<SearchDataModel>(context);
     return Stack(
       children: [
         Container(
@@ -34,53 +37,56 @@ class HomeSearchState extends State<HomeSearch> {
               resizeToAvoidBottomPadding: false,
               backgroundColor: Colors.transparent,
               appBar: AppBar(
+                  shape: Border(bottom: BorderSide(color: Colors.white)),
                   title: Container(
-                      padding: const EdgeInsets.only(top: 10),
+                      padding: EdgeInsets.only(top: 10*ws),
                       child: Text(
-                        'Tra cứu tài sản',
+                        TITLE_SEARCH,
                         style:
-                            TextStyle(color: Color(0xFFF2F2F9), fontSize: 20),
+                            TextStyle(color: Color(0xFFF2F2F9), fontSize: 20*fs),
                       )),
                   centerTitle: true,
                   backgroundColor: Colors.transparent,
-                  toolbarHeight: 110,
+                  toolbarHeight: 110*ws,
                   elevation: 0.0,
                   leading: Container(
-                    margin: const EdgeInsets.only(left: 20),
+                    margin: EdgeInsets.only(left: 20*ws),
                     child: IconButton(
                       icon: Icon(Icons.arrow_back),
                       onPressed: () {
-                        qrcodeData.clear();
-                        inputData.clear();
+                        searchInput.clear();
+                        searchData.clear();
                         Navigator.pop(context);
                       },
                     ),
                   ),
-                  actions: [
-                    Container(
-                      margin: const EdgeInsets.only(right: 5),
-                      child: IconButton(
-                        icon: Icon(Icons.dehaze_rounded),
-                        onPressed: () {},
-                      ),
-                    )
-                  ],
+                  // actions: [
+                  //   Container(
+                  //     margin:  EdgeInsets.only(right: 5*ws),
+                  //     child: IconButton(
+                  //       icon: Icon(Icons.dehaze_rounded),
+                  //       onPressed: () {},
+                  //     ),
+                  //   )
+                  // ],
                   bottom: PreferredSize(
-                    preferredSize: Size(MediaQuery.of(context).size.width, 40),
-                    child: TabBar(tabs: [
+                    preferredSize: Size(MediaQuery.of(context).size.width, 40*ws),
+                    child: TabBar(
+                        indicatorWeight: 3,
+                        tabs: [
                       Container(
-                          height: 40,
+                          height: 40*ws,
                           child: Center(
                               child: Text(
-                            'QR Code',
-                            style: TextStyle(fontSize: 16),
+                                TABBAR_TITLE_QRCODE,
+                            style: TextStyle(fontSize: 16*fs),
                           ))),
                       Container(
-                          height: 40,
+                          height: 40*ws,
                           child: Center(
                               child: Text(
-                            'Nhập thông tin',
-                            style: TextStyle(fontSize: 16),
+                                TABBAR_TITLE_INPUT,
+                            style: TextStyle(fontSize: 16*fs),
                           ))),
                     ], indicatorColor: Colors.white),
                   )),

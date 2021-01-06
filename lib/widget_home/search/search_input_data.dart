@@ -1,12 +1,17 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:qlts/constant/constant.dart';
 import 'package:qlts/data_sources/data_source_search/item_search_model.dart';
+import 'package:qlts/provider/home_inventory/inventory_config_data_provider.dart';
+import 'package:qlts/provider/home_inventory/inventory_fixed_provider.dart';
+import 'package:qlts/provider/home_inventory/inventory_provider.dart';
+import 'package:qlts/provider/home_search/search_data_provider.dart';
 import 'package:qlts/provider/home_search/search_input_data_provider.dart';
-import 'package:qlts/widget_home/search/search_qrcode.dart';
+import 'package:qlts/widget_dialog/dialog_error.dart';
 import 'package:qlts/repository/repository.dart';
-import 'package:qlts/splash_page.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:qlts/widget_dialog/dialog_loader.dart';
+import 'package:qlts/widget_home/button_widget.dart';
 
 class SearchInputData extends StatefulWidget {
   final token;
@@ -31,23 +36,31 @@ class SearchInputDataState extends State<SearchInputData> {
   @override
   Widget build(BuildContext context) {
     var result = Provider.of<SearchInputDataModel>(context);
-    return Column(
-      children: [
-        ///get du lieu tu camera
-        Card(
-          margin: const EdgeInsets.all(20),
-          shadowColor: Colors.white70,
-          elevation: 10.0,
-          color: Colors.white.withOpacity(1),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Container(
-            height: 270,
+    ///Search QrCode
+    var searchData = Provider.of<SearchDataModel>(context);
+    ///Get Config
+    var getInventoryConfigData = Provider.of<InventoryConfigData>(context);
+    ///Get Inventory Round
+    var getInventoryData = Provider.of<InventoryData>(context);
+    ///Get Inventory Fixed
+    var getInventoryFixedData = Provider.of<InventoryFixedDataProvider>(context);
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Card(
+            margin:  EdgeInsets.all(20*ws),
+            shadowColor: Colors.white70,
+            elevation: 10.0*ws,
+            color: Colors.white.withOpacity(1),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
             child: Container(
-              padding: const EdgeInsets.only(
-                  bottom: 10, top: 20, right: 20, left: 20),
+              height: 280*ws,
+              padding: EdgeInsets.only(
+                  bottom: 10*ws, top: 20*ws, right: 20*ws, left: 20*ws),
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Expanded(
@@ -68,7 +81,7 @@ class SearchInputDataState extends State<SearchInputData> {
                                         color: type == 1
                                             ? Colors.grey
                                             : Color(0xFF050505),
-                                        fontSize: 13),
+                                        fontSize: 13*fs),
                                     overflow: TextOverflow.ellipsis,
                                   )),
                                   TextField(
@@ -85,7 +98,7 @@ class SearchInputDataState extends State<SearchInputData> {
                                       });
                                     },
                                     style: TextStyle(
-                                      fontSize: 16,
+                                      fontSize: 16*fs,
                                       color: Color(0xFF050505),
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -113,7 +126,7 @@ class SearchInputDataState extends State<SearchInputData> {
                                         color: type == 1
                                             ? Colors.grey
                                             : Color(0xFF050505),
-                                        fontSize: 13),
+                                        fontSize: 13*fs),
                                     overflow: TextOverflow.ellipsis,
                                   )),
                                   TextField(
@@ -130,7 +143,7 @@ class SearchInputDataState extends State<SearchInputData> {
                                       });
                                     },
                                     style: TextStyle(
-                                      fontSize: 16,
+                                      fontSize: 16*fs,
                                       color: Color(0xFF050505),
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -154,14 +167,14 @@ class SearchInputDataState extends State<SearchInputData> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Container(
-                                margin: const EdgeInsets.only(top: 5),
+                                margin: EdgeInsets.only(top: 5*ws),
                                 child: Text(
                                   'Serial',
                                   style: TextStyle(
                                       color: type == 2
                                           ? Colors.grey
                                           : Color(0xFF050505),
-                                      fontSize: 13),
+                                      fontSize: 13*fs),
                                   overflow: TextOverflow.ellipsis,
                                 )),
                             TextField(
@@ -178,7 +191,7 @@ class SearchInputDataState extends State<SearchInputData> {
                                 });
                               },
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 16*fs,
                                 color: Color(0xFF050505),
                                 fontWeight: FontWeight.bold,
                               ),
@@ -192,154 +205,122 @@ class SearchInputDataState extends State<SearchInputData> {
                       )),
 
                   ///Click search
-                  GestureDetector(
-                    onTap: () async {
-                      FocusScope.of(context).requestFocus(FocusNode());
-                      if (!validate()) {
-                        setState(() {
-                          error = true;
-                        });
-                      } else {
-                        if (_serial == '') {
-                          itemSearchModel = await repository.fetchSearchInput(
-                              token: widget.token,
-                              soThe: _soThe,
-                              assetCodeNumber: _id);
-                        } else {
-                          itemSearchModel =
-                              await repository.fetchSearchInputSerial(
-                                  token: widget.token, serial: _serial);
-                        }
-                        result.update(itemSearchModel);
-                        if (result.errorCode != '200') {
-                          if (result.errorCode == '498.2') {
-                            print('****Camera  Timeout**set token =' '******');
-                            SharedPreferences prefs =
-                                await SharedPreferences.getInstance();
-                            prefs.setString('token', '');
+                    RaisedGradientButton(
+                        onPressed: () async {
+                          FocusScope.of(context).requestFocus(FocusNode());
+                          result.clear();
+                          if (!validate()) {
+                            setState(() {
+                              error = true;
+                            });
+                          } else {
+                            showLoaderDialog(context);
+                            if (_serial == '') {
+                              itemSearchModel = await repository.fetchSearchInput(
+                                  token: widget.token,
+                                  soThe: _soThe.trim(),
+                                  assetCodeNumber: _id.trim());
+                            } else {
+                              itemSearchModel =
+                                  await repository.fetchSearchInputSerial(
+                                  token: widget.token, serial: _serial.trim());
+                            }
+                            if (itemSearchModel.errorCode != SUCCESS) {
+
+                              if (itemSearchModel.errorCode == TIME_OUT) {
+                                getInventoryData.clear();
+                                getInventoryFixedData.clear();
+                                getInventoryConfigData.clear();
+                                searchData.clear();
+                                result.clear();
+                              }
+                              Navigator.pop(context);
+                              ///Show error code
+                              if(itemSearchModel.errorCode == '203'){
+                                showErrorDialog(context: this.context, errorDesc: ERROR_NOT_FOUND);
+                              }else{
+                                showErrorDialog(context: this.context, errorCode: itemSearchModel.errorCode, errorDesc: itemSearchModel.errorDesc);
+                              }
+                            }else{
+                              result.update(itemSearchModel);
+                              Navigator.pop(context);
+                            }
                           }
-                          _errorDialog(
-                              errCode: result.errorCode, err: result.errorDesc);
-                        }
-                      }
-                    },
-                    child: Container(
-                      margin: const EdgeInsets.only(top: 20, bottom: 5),
-                      width: 140,
-                      height: 40,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(8)),
-                          gradient: LinearGradient(
-                              colors: [Color(0xFF00A3FF), Color(0xFF0033E7)],
-                              begin: Alignment.topLeft,
-                              end: Alignment(0.0, 0.0))),
-                      child: Center(
+                        },
                         child: Text(
                           'Tra cứu',
                           style: TextStyle(
                               color: Colors.white,
-                              fontSize: 14,
+                              fontSize: 14*fs,
                               fontWeight: FontWeight.bold),
                         ),
                       ),
+                  Visibility(
+                    visible: error,
+                    child: Text(
+                      '*Vui lòng nhập lại thông tin',
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+
+          Card(
+            margin: EdgeInsets.only(bottom: 20*ws, right: 20*ws, left: 20*ws),
+            shadowColor: Colors.white70,
+            elevation: 10.0*ws,
+            color: Colors.white.withOpacity(1),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Container(
+              height: result.list.length == 0
+                  ? 90*ws
+                  : 400*ws,
+              margin: EdgeInsets.only(top: 20*ws, bottom: 20*ws),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                      margin: EdgeInsets.only(right: 10*ws),
+                      child: Container(
+                        margin: EdgeInsets.only(bottom: 20*ws, left: 20*ws),
+                        child: Text(
+                          'Thông tin tài sản',
+                          style: TextStyle(
+                              color: Color(0xFF050505),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16*fs),
+                        ),
+                      )),
+                  Expanded(
+                    child: CustomScrollView(
+                      slivers: [
+                        SliverList(
+                          delegate: SliverChildBuilderDelegate(
+                                  (context, index) => ListTile(
+                                title: _informationDetail(
+                                    this.context,
+                                    result
+                                        .list[index],
+                                    index),
+                              ),
+                              childCount: result
+                                  .list.length),
+                        ),
+                      ],
                     ),
                   ),
-                  Text(
-                    error ? '*Vui lòng nhập lại thông tin' : '',
-                    style: TextStyle(color: Colors.red),
-                  )
                 ],
               ),
             ),
           ),
-        ),
 
-        Expanded(
-          child: Container(
-            margin: const EdgeInsets.only(top: 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                    margin: const EdgeInsets.only(right: 10),
-                    child: Container(
-                      margin: const EdgeInsets.only(bottom: 10, left: 20),
-                      child: Text(
-                        'Thông tin tài sản',
-                        style: TextStyle(
-                            color: Color(0xFF050505),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16),
-                      ),
-                    )),
-                Expanded(
-                  child: CustomScrollView(
-                    slivers: [
-                      SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                            (context, index) => ListTile(
-                                  title: informationDetail(result.list[index]),
-                                ),
-                            childCount: result.list.length),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        )
-      ],
+        ],
+      ),
     );
-  }
-
-  void _errorDialog({String errCode, String err}) {
-    Dialog errorDialog = Dialog(
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0)), //this right here
-        child: Container(
-            height: 300.0,
-            width: 200.0,
-            child: Container(
-              padding: const EdgeInsets.only(
-                  top: 10, right: 15, left: 15, bottom: 10),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Thông báo',
-                    style: TextStyle(
-                        color: Colors.black, fontWeight: FontWeight.bold),
-                  ),
-                  Container(
-                      margin: const EdgeInsets.only(top: 20, bottom: 20),
-                      child: Text(errCode == '498.2'
-                          ? 'Phiên làm việc của bạn đã hết hạn.\nVui lòng ăng nhập lại'
-                          : err)),
-                  RaisedButton(
-                    textColor: Colors.white,
-                    onPressed: () {
-                      Navigator.pop(context);
-                      if (errCode == '498.2') {
-                        Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => SplashPage()),
-                            (Route<dynamic> route) => false);
-                      } else {
-                        Navigator.pop(context);
-                      }
-                    },
-                    child: Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(color: Colors.blue),
-                        child: Text('OK')),
-                  )
-                ],
-              ),
-            )));
-    showDialog(
-        context: context, builder: (BuildContext context) => errorDialog);
   }
 
   bool validate() {
@@ -353,3 +334,37 @@ class SearchInputDataState extends State<SearchInputData> {
     return true;
   }
 }
+
+Container _informationDetail(
+    BuildContext context, Result result, int index) {
+  return Container(
+    margin: EdgeInsets.only(top: 10*ws, left: 20*ws, right: 20*ws),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+            margin: EdgeInsets.only(bottom: 10*ws),
+            child: Text(
+              result.tenThuocTinh,
+              style: TextStyle(color: Color(0xFF050505), fontSize: 13*fs),
+              overflow: TextOverflow.ellipsis,
+            )),
+        TextField(
+          enabled: false,
+          style: TextStyle(
+            fontSize: 16*fs,
+            color: Color(0xFF050505),
+            fontWeight: FontWeight.bold,
+          ),
+          decoration: InputDecoration(),
+          keyboardType: result.kieuDuLieu == 'text'
+              ? TextInputType.text
+              : TextInputType.number,
+          controller: TextEditingController()
+            ..text = result.giaTri ?? '',
+        ),
+      ],
+    ),
+  );
+}
+

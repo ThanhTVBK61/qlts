@@ -3,6 +3,7 @@ import 'package:qlts/data_sources/callAPI.dart';
 import 'package:qlts/data_sources/data_source_search/item_search_model.dart';
 
 class SearchAPIProvider {
+
   Future<ItemSearchModel> fetchSearchQRCode(
       String token, String type, String value) async {
     Map<String, dynamic> body = {"token": token, "type": type, "value": value};

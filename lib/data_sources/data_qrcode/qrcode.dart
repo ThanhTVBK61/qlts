@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:qlts/constant.dart';
+import 'package:qlts/constant/constant.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:vibration/vibration.dart';
 
@@ -24,22 +24,13 @@ class _QRCodeWidgetState extends State<QRCodeWidget> {
   Function callback;
 
   bool pause = false;
+  bool _isFlashOn = false;
 
   _QRCodeWidgetState(this.callback);
 
   @override
   void initState() {
     super.initState();
-  }
-
-  Color getFlashColor() {
-    switch (flashState) {
-      case flashOn:
-        return Colors.blue;
-        break;
-      default:
-        return Color(0xFF303030);
-    }
   }
 
   @override
@@ -61,29 +52,46 @@ class _QRCodeWidgetState extends State<QRCodeWidget> {
         ),
         Expanded(
             flex: 1,
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  if (pause) {
-                    pause = false;
-                    callback('',true);
-                    controller?.resumeCamera();
-                  }else
-                    {
-                      pause = true;
-                      controller?.pauseCamera();
-                    }
-                });
-              },
-              child:
-                  !pause ? Icon(Icons.pause) : Icon(Icons.play_arrow_rounded),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      if (pause) {
+                        pause = false;
+                        callback('',true);
+                        controller?.resumeCamera();
+                      }else
+                        {
+                          pause = true;
+                          controller?.pauseCamera();
+                        }
+                    });
+                  },
+                  child:
+                      !pause ? Icon(Icons.pause, color: Colors.blue,) : Icon(Icons.play_arrow_rounded, color: Colors.grey,),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      if (_isFlashOn) {
+                        _isFlashOn = false;
+                        controller?.toggleFlash();
+                      }else
+                      {
+                        _isFlashOn = true;
+                        controller?.toggleFlash();
+                      }
+                    });
+                  },
+                  child:
+                  _isFlashOn ? Icon(Icons.flash_on_rounded, color: Colors.blue,) : Icon(Icons.flash_off_rounded, color: Colors.grey,),
+                ),
+              ],
             ))
       ],
     );
-  }
-
-  bool _isFlashOn(String current) {
-    return flashOn == current;
   }
 
   void _onQRViewCreated(QRViewController controller) {

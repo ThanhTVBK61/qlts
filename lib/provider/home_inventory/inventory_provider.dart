@@ -3,31 +3,43 @@ import 'package:qlts/data_sources/data_source_inventory/inventory_model.dart';
 
 class InventoryData extends ChangeNotifier{
   var list = [];
-  var errorDesc = '';
-  var errorCode = '200';
   var currentId = -1;
   //Vị trí của đợt kiểm kê hiện tại
   var currentIndex = -1;
+  var online = true;
+  var changeStatusOnline = false;
+
+  var emptySqflite = true;
 
   update(InventoryModel inventoryModel){
-    list = inventoryModel.listInventory;
-    errorDesc = inventoryModel.errorDesc;
-    errorCode = inventoryModel.errorCode;
+    list = inventoryModel.listInventoryRound;
     notifyListeners();
   }
 
-  updateId(int index){
+  updateIndex(int index){
     currentId = list[index].id;
     currentIndex = index;
     notifyListeners();
   }
 
-  clear(){
-    list.clear();
-    errorCode = '200';
-    errorDesc = '';
-    currentId = -1;
-    currentIndex = -1;
+  updateOnlineState(bool newState){
+    online = newState;
+    changeStatusOnline = true;
     notifyListeners();
   }
+
+  updateChangeStatus(){
+    changeStatusOnline = false;
+    notifyListeners();
+  }
+
+  clear(){
+    list.clear();
+    currentId = -1;
+    currentIndex = -1;
+    online = true;
+    changeStatusOnline = false;
+    notifyListeners();
+  }
+
 }
